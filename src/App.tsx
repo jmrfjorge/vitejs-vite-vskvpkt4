@@ -156,7 +156,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('gifts'); // 'gifts' | 'rsvp'
 
   const [partyInfo, setPartyInfo] = useState({
-    title: '3º Aniversário da Nossa Leoazinha',
+    title: 'Reino da Jade • 3º Aniversário da Nossa Leoazinha',
     subtitle: 'Hakuna Matata! Celebração de 3 Anos no Reino da Selva',
     welcomeMsg: 'Sua presença é o nosso maior presente! Venha celebrar o 3º aninho da nossa leoazinha no Reino da Selva Encantada. Hakuna Matata!',
     dateText: 'Sábado, 17 de Outubro de 2026',
