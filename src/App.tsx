@@ -26,7 +26,7 @@ import {
 
 
 // Background watermarked illustration
-const WATERMARK_BG = 'https://drive.google.com/file/d/1zDyvSX5_C0CECa0j-AatUy9JWDeGsev_/view?usp=drive_link?auto=format&fit=crop&q=80&w=1200';
+const WATERMARK_BG = 'https://drive.google.com/file/d/1zDyvSX5_C0CECa0j-AatUy9JWDeGsev_/view?usp=drive_link';
 
 const DEFAULT_GIFTS = [
   {
@@ -153,7 +153,6 @@ const DEFAULT_GIFTS = [
 
 
 export default function App() {
-  // Configurado para abrir por padrão na aba 'rsvp' (Confirme sua Presença)
   const [activeTab, setActiveTab] = useState('rsvp'); 
 
   const [partyInfo, setPartyInfo] = useState({
@@ -384,7 +383,7 @@ export default function App() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10">
 
-        {/* SECTION 1: RSVP WITH GOOGLE FORM (AGORA PRIMEIRA SEÇÃO MOSTRADA) */}
+        {/* SECTION 1: RSVP WITH GOOGLE FORM */}
         {activeTab === 'rsvp' && (
           <div className="space-y-6 animate-fadeIn">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-pink-200 shadow-xl overflow-hidden">
@@ -417,7 +416,7 @@ export default function App() {
           </div>
         )}
 
-        {/* SECTION 2: GIFTS LIST (ACESSADA AO CLICAR NA SEGUNDA ABA) */}
+        {/* SECTION 2: GIFTS LIST */}
         {activeTab === 'gifts' && (
           <div className="space-y-8 animate-fadeIn">
             
@@ -464,7 +463,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Gifts Grid (Always Available) */}
+            {/* Gifts Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredGifts.map((gift) => (
                 <div
