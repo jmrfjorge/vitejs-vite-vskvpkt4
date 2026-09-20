@@ -384,6 +384,12 @@ export default function App() {
           <div className="space-y-8 animate-fadeIn">
             
             {/* Filter Bar */}
+            {/* Mensagem de Aviso Carinhoso */}
+              <div className="bg-pink-100/90 border-2 border-pink-300 p-4 rounded-2xl text-center mb-6 shadow-sm max-w-3xl mx-auto">
+              <p className="text-xs sm:text-sm font-bold text-pink-950 leading-relaxed">
+              💡 <span className="underline">Observação:</span> "🦁 Sua presença é o nosso maior presente! Montamos esta lista apenas como uma sugestão para ajudar quem pediu ideias. Fiquem totalmente à vontade para escolher outro presente ou apenas sua presença no dia da festa.
+              </p>
+              </div>
             <div className="bg-white/95 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-pink-200 shadow-md flex flex-col md:flex-row gap-4 justify-between items-center">
               <div className="relative w-full md:w-80">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
