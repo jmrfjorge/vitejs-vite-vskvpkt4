@@ -26,7 +26,7 @@ import {
 
 
 // Background watermarked illustration
-const WATERMARK_BG = 'https://drive.google.com/file/d/1zDyvSX5_C0CECa0j-AatUy9JWDeGsev_/view?usp=drive_link';
+const WATERMARK_BG = 'https://lh3.googleusercontent.com/d/1zDyvSX5_C0CECa0j-AatUy9JWDeGsev_';
 
 const DEFAULT_GIFTS = [
   {
