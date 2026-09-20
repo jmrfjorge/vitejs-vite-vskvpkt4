@@ -156,7 +156,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('rsvp'); 
 
   const [partyInfo, setPartyInfo] = useState({
-    title: 'Reino da Jade • 3º Aniversário da Nossa Leoazinha',
+    titleLine1: 'O Reino da Jade',
+    titleLine2: '3º Aniversário da Nossa Leoazinha',
     subtitle: 'Hakuna Matata! Celebração de 3 Anos no Reino da Selva',
     welcomeMsg: 'Sua presença é o nosso maior presente! Venha celebrar o 3º aninho da nossa leoazinha no Reino da Selva Encantada. Hakuna Matata!',
     dateText: 'Sábado, 17 de Outubro de 2026',
@@ -278,7 +279,10 @@ export default function App() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-stone-900 tracking-tight mb-4 drop-shadow-sm font-serif">
-            {partyInfo.title}
+            <span className="block">{partyInfo.titleLine1}</span>
+            <span className="block text-xl sm:text-3xl md:text-4xl text-pink-900 font-sans font-extrabold mt-2">
+              • {partyInfo.titleLine2}
+            </span>
           </h1>
 
           <p className="text-base sm:text-lg text-stone-800 max-w-2xl mx-auto font-semibold leading-relaxed mb-8 bg-white/80 backdrop-blur-md p-4.5 rounded-2xl border border-pink-200 shadow-sm">
