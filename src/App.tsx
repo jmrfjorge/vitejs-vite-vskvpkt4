@@ -268,8 +268,8 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER BANNER */}
-      <header className="relative text-stone-900 overflow-hidden shadow-lg bg-gradient-to-b from-pink-100/90 via-pink-50/80 to-emerald-50/70 min-h-[500px] flex items-center justify-center border-b border-pink-200 py-12 px-4 z-10">
+      {/* HEADER BANNER - OPÇÃO C: TRANSLÚCIDO PARA EXPÔR O PLANO DE FUNDO */}
+      <header className="relative text-stone-900 overflow-hidden shadow-sm bg-pink-100/30 backdrop-blur-xs min-h-[500px] flex items-center justify-center border-b border-pink-200/50 py-12 px-4 z-10">
         
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
           <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-md px-4 py-1.5 rounded-full border border-pink-300 text-pink-700 font-extrabold text-xs uppercase tracking-wider mb-4 shadow-sm">
