@@ -40,7 +40,7 @@ const DEFAULT_GIFTS = [
   {
     id: 2,
     title: 'Kit de Massinhas & Forminhas da Selva',
-    category: 'Brinquedos',
+    category: 'Brinquedos Educativos',
     price: 45,
     image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
@@ -50,15 +50,15 @@ const DEFAULT_GIFTS = [
     title: 'Livro Sonoro Contos da Selva',
     category: 'Livros & Arte',
     price: 55,
-    image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
     id: 4,
     title: 'Quebra-Cabeça Gigante Infantil de Madeira',
-    category: 'Brinquedos',
+    category: 'Jogos & Quebra-Cabeças',
     price: 65,
-    image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1618842676088-c4d48a6a7c9d?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
@@ -72,9 +72,9 @@ const DEFAULT_GIFTS = [
   {
     id: 6,
     title: 'Jogo de Chá Infantil Delicado Safari',
-    category: 'Brinquedos',
+    category: 'Faz de Conta',
     price: 95,
-    image: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1558021212-51b6ecfa0db9?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
@@ -88,7 +88,7 @@ const DEFAULT_GIFTS = [
   {
     id: 8,
     title: 'Blocos de Montar Didáticos Educativos',
-    category: 'Brinquedos',
+    category: 'Brinquedos Educativos',
     price: 140,
     image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
@@ -96,15 +96,15 @@ const DEFAULT_GIFTS = [
   {
     id: 9,
     title: 'Cozinha de Brinquedo Infantil Completa',
-    category: 'Brinquedos',
+    category: 'Faz de Conta',
     price: 180,
-    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
     id: 10,
     title: 'Pelúcia Gigante Leoazinha Antialérgica',
-    category: 'Brinquedos',
+    category: 'Pelúcias',
     price: 220,
     image: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
@@ -112,7 +112,7 @@ const DEFAULT_GIFTS = [
   {
     id: 11,
     title: 'Patinete 3 Rodas com Luzes LED e Capacete',
-    category: 'Atividades',
+    category: 'Esporte & Ar Livre',
     price: 280,
     image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
@@ -120,25 +120,25 @@ const DEFAULT_GIFTS = [
   {
     id: 12,
     title: 'Mercadinho Infantil com Acessórios',
-    category: 'Brinquedos',
+    category: 'Faz de Conta',
     price: 330,
-    image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
     id: 13,
     title: 'Triciclo Infantil Passeio com Empurrador Rosa',
-    category: 'Atividades',
+    category: 'Esporte & Ar Livre',
     price: 390,
-    image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
     id: 14,
     title: 'Mini Playground de Atividades e Escorregador',
-    category: 'Atividades',
+    category: 'Esporte & Ar Livre',
     price: 450,
-    image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=400',
+    image: 'https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?auto=format&fit=crop&q=80&w=400',
     pixKey: '12814531700'
   },
   {
@@ -268,7 +268,7 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER BANNER - OPÇÃO C: TRANSLÚCIDO PARA EXPÔR O PLANO DE FUNDO */}
+      {/* HEADER BANNER - TRANSLÚCIDO PARA EXPÔR O PLANO DE FUNDO */}
       <header className="relative text-stone-900 overflow-hidden shadow-sm bg-pink-100/30 backdrop-blur-xs min-h-[500px] flex items-center justify-center border-b border-pink-200/50 py-12 px-4 z-10">
         
         <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
