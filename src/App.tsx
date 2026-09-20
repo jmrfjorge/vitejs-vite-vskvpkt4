@@ -153,7 +153,8 @@ const DEFAULT_GIFTS = [
 
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('gifts'); // 'gifts' | 'rsvp'
+  // Configurado para abrir por padrão na aba 'rsvp' (Confirme sua Presença)
+  const [activeTab, setActiveTab] = useState('rsvp'); 
 
   const [partyInfo, setPartyInfo] = useState({
     title: 'Reino da Jade • 3º Aniversário da Nossa Leoazinha',
@@ -351,6 +352,21 @@ export default function App() {
       {/* NAVIGATION TABS */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-7 relative z-20">
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-2 border border-pink-200 flex flex-wrap gap-1 max-w-xl mx-auto">
+          
+          {/* BOTÃO 1: Confirme sua Presença */}
+          <button
+            onClick={() => setActiveTab('rsvp')}
+            className={`flex-1 py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all ${
+              activeTab === 'rsvp'
+                ? 'bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 text-white shadow-md'
+                : 'text-stone-700 hover:text-pink-900 hover:bg-pink-50'
+            }`}
+          >
+            <CheckCircle className="w-4 h-4 text-pink-200" />
+            Confirme sua Presença
+          </button>
+
+          {/* BOTÃO 2: Lista de Presentes */}
           <button
             onClick={() => setActiveTab('gifts')}
             className={`flex-1 py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all ${
@@ -363,33 +379,56 @@ export default function App() {
             Lista de Presentes
           </button>
           
-          <button
-            onClick={() => setActiveTab('rsvp')}
-            className={`flex-1 py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all ${
-              activeTab === 'rsvp'
-                ? 'bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 text-white shadow-md'
-                : 'text-stone-700 hover:text-pink-900 hover:bg-pink-50'
-            }`}
-          >
-            <CheckCircle className="w-4 h-4 text-pink-200" />
-            Confirme sua Presença
-          </button>
         </div>
       </div>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10">
 
-        {/* SECTION 1: GIFTS LIST */}
+        {/* SECTION 1: RSVP WITH GOOGLE FORM (AGORA PRIMEIRA SEÇÃO MOSTRADA) */}
+        {activeTab === 'rsvp' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-pink-200 shadow-xl overflow-hidden">
+              <div className="p-4 bg-pink-100/80 border-b border-pink-200 flex flex-wrap justify-between items-center gap-2">
+                <div className="flex items-center gap-2 text-pink-950 text-xs font-bold">
+                  <Crown className="w-4 h-4 text-pink-600" />
+                  <span>Formulário Oficial de Presença (Leoazinha 3 Anos)</span>
+                </div>
+
+                <a
+                  href={partyInfo.googleFormUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-pink-700 hover:underline flex items-center gap-1 font-bold"
+                >
+                  Abrir em nova aba <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+
+              <div className="w-full h-[750px] relative bg-stone-100">
+                <iframe
+                  src={partyInfo.googleFormUrl}
+                  className="w-full h-full border-0"
+                  title="Google Forms RSVP Leoazinha 3 Anos"
+                >
+                  Carregando formulário...
+                </iframe>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION 2: GIFTS LIST (ACESSADA AO CLICAR NA SEGUNDA ABA) */}
         {activeTab === 'gifts' && (
           <div className="space-y-8 animate-fadeIn">
             
-            {/* Filter Bar */}
             {/* Mensagem de Aviso Carinhoso */}
-              <div className="bg-pink-100/90 border-2 border-pink-300 p-4 rounded-2xl text-center mb-6 shadow-sm max-w-3xl mx-auto">
+            <div className="bg-pink-100/90 border-2 border-pink-300 p-4 rounded-2xl text-center mb-6 shadow-sm max-w-3xl mx-auto">
               <p className="text-xs sm:text-sm font-bold text-pink-950 leading-relaxed">
-              💡 <span className="underline">Observação:</span> "🦁 Sua presença é o nosso maior presente! Montamos esta lista apenas como uma sugestão para ajudar quem pediu ideias. Fiquem totalmente à vontade para escolher outro presente ou apenas sua presença no dia da festa.
+                💡 <span className="underline">Observação:</span> "🦁 Sua presença é o nosso maior presente! Montamos esta lista apenas como uma sugestão para ajudar quem pediu ideias. Fiquem totalmente à vontade para escolher outro presente ou apenas sua presença no dia da festa."
               </p>
-              </div>
+            </div>
+
+            {/* Filter Bar */}
             <div className="bg-white/95 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-pink-200 shadow-md flex flex-col md:flex-row gap-4 justify-between items-center">
               <div className="relative w-full md:w-80">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -471,39 +510,6 @@ export default function App() {
               ))}
             </div>
 
-          </div>
-        )}
-
-        {/* SECTION 2: RSVP WITH GOOGLE FORM */}
-        {activeTab === 'rsvp' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-pink-200 shadow-xl overflow-hidden">
-              <div className="p-4 bg-pink-100/80 border-b border-pink-200 flex flex-wrap justify-between items-center gap-2">
-                <div className="flex items-center gap-2 text-pink-950 text-xs font-bold">
-                  <Crown className="w-4 h-4 text-pink-600" />
-                  <span>Formulário Oficial de Presença (Leoazinha 3 Anos)</span>
-                </div>
-
-                <a
-                  href={partyInfo.googleFormUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-pink-700 hover:underline flex items-center gap-1 font-bold"
-                >
-                  Abrir em nova aba <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-
-              <div className="w-full h-[750px] relative bg-stone-100">
-                <iframe
-                  src={partyInfo.googleFormUrl}
-                  className="w-full h-full border-0"
-                  title="Google Forms RSVP Leoazinha 3 Anos"
-                >
-                  Carregando formulário...
-                </iframe>
-              </div>
-            </div>
           </div>
         )}
 
