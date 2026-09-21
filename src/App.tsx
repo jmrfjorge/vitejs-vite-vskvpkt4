@@ -81,80 +81,12 @@ const DEFAULT_GIFTS = [
   {
     id: 8,
     title: 'Blocos de Montar Didáticos Educativos',
-    category: 'Brinquedos Educativos',
-    price: 140,
-    image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 9,
-    title: 'Cozinha de Brinquedo Infantil Completa',
-    category: 'Faz de Conta',
-    price: 180,
-    image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 10,
-    title: 'Pelúcia Gigante Leoazinha Antialérgica',
-    category: 'Pelúcias',
-    price: 220,
-    image: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 11,
-    title: 'Patinete 3 Rodas com Luzes LED e Capacete',
-    category: 'Esporte & Ar Livre',
-    price: 280,
-    image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 12,
-    title: 'Mercadinho Infantil com Acessórios',
-    category: 'Faz de Conta',
-    price: 330,
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 13,
-    title: 'Triciclo Infantil Passeio com Empurrador Rosa',
-    category: 'Esporte & Ar Livre',
-    price: 390,
-    image: 'https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 14,
-    title: 'Mini Playground de Atividades e Escorregador',
-    category: 'Esporte & Ar Livre',
-    price: 450,
-    image: 'https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  },
-  {
-    id: 15,
-    title: 'Contribuição Especial / Vale Presente Mimo de Aniversário',
-    category: 'Experiências',
-    price: 500,
-    image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=400',
-    pixKey: '12814531700'
-  }
-];
+    category: 'Brinquedos EducativosAs melhorias e novidades de um serviço ou sistema podem ser disponibilizadas de formas diferentes em cada plataforma, sendo comum que certas funções — como a leitura e geração de QR Codes Pix — cheguem primeiro ou fiquem restritas aos aplicativos móveis devido ao uso da câmera do celular.
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('rsvp'); 
+Se você está buscando o QR Code ou a opção de transacionar via Pix no computador e ela não aparece na tela, as causas mais comuns costumam ser:
 
-  const [partyInfo] = useState({
-    titleLine1: 'O Reino da Jade',
-    titleLine2: '3º Aniversário da Nossa Leoazinha',
-    subtitle: 'Hakuna Matata! Celebração de 3 Anos no Reino da Selva',
-    welcomeMsg: 'Sua presença é o nosso maior presente! Venha celebrar o 3º aninho da nossa leoazinha no Reino da Selva Encantada. Hakuna Matata!',
-    dateText: 'Sábado, 17 de Outubro de 2026',
-    timeText: 'A partir das 13:00',
-    locationText: 'Aquarela Casa de Festa - R. Cel. Rodrigues, 92 – Lj – Centro – São Gonçalo – RJ',
-    mapsUrl: 'https://maps.google.com/?q=Aquarela+Casa+de+Festa+R.+Cel.+Rodrigues,+92+Centro+São+Gonçalo+RJ',
-    calendarUrl: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Anivers%C3%A1rio+de+3+Anos+da+Jade&dates=20261017T160000Z/20261017T210000Z&details=Celebra%C3%A7%C3%A3o+de+3+Anos+da+Jade+no+Reino+da+Selva!&location=Aquarela+Casa+de+Festa+-+R.+Cel.+Rodrigues,+92+%E2%80%93+Lj+%E2%80%93+Centro+%E2%80%93+S%C3%A3o+Gon%C3%A7alo+%E2%80%93+RJ',
-    pixKeyGlobal: '12814531700',Para te dar a melhor sugestão, de qual projeto ou texto especificamente você gostaria de ver mais melhorias?
+* **Integração restrita ao App:** Alguns bancos e plataformas limitam a leitura de QR Code e certas operações financeiras ao aplicativo para smartphone por razões de segurança e autenticação biométrica.
+* **Menu ou Localização Diferente:** No navegador desktop, a opção de Pix às vezes fica alocada em um menu específico de pagamentos ou transferências, diferente da interface do aplicativo.
+* **Suporte à Leitura de Código:** Caso a plataforma permita ler um QR Code pelo computador, isso geralmente depende do envio do arquivo da imagem ou da autorização de uso da webcam.
+
+Para saber exatamente onde encontrar a funcionalidade no computador ou se trata de uma limitação da versão desktop, vale verificar a qual plataforma, site ou aplicativo você está se referindo.
