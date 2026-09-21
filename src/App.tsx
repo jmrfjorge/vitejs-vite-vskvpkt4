@@ -169,7 +169,7 @@ export default function App() {
     pixKeyGlobal: '12814531700',
     googleFormUrl: 'https://forms.gle/NYeD5nE7ruerHPMi6',
     headerBgUrl: WATERMARK_BG,
-    whatsappContact: '5521999999999'
+    whatsappContact: '5521987600882'
   });
 
   const [gifts, setGifts] = useState<GiftItem[]>(() => {
