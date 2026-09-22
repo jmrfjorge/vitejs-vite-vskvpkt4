@@ -15,7 +15,10 @@ import {
   Sparkles,
   Crown,
   MessageCircle,
-  Filter
+  Navigation,
+  CalendarPlus,
+  Filter,
+  Send
 } from 'lucide-react';
 
 // Background watermarked illustration
@@ -144,6 +147,41 @@ const DEFAULT_GIFTS = [
   }
 ];
 
+// Gerador de Payload EMVCo BR Code (Padrão Oficial do Banco Central)
+function generatePixPayload(key: string, name: string, city: string, amount: number) {
+  const cleanKey = key.replace(/\D/g, '');
+  const formattedAmount = amount.toFixed(2);
+  
+  const merchantAccount = `0014BR.GOV.BCB.PIX01${cleanKey.length.toString().padStart(2, '0')}${cleanKey}`;
+  const formattedName = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").substring(0, 25);
+  const formattedCity = city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").substring(0, 15);
+
+  let payload = 
+    `000201` +
+    `26${merchantAccount.length.toString().padStart(2, '0')}${merchantAccount}` +
+    `52040000` +
+    `5303986` +
+    `54${formattedAmount.length.toString().padStart(2, '0')}${formattedAmount}` +
+    `5802BR` +
+    `59${formattedName.length.toString().padStart(2, '0')}${formattedName}` +
+    `60${formattedCity.length.toString().padStart(2, '0')}${formattedCity}` +
+    `62070503***6304`;
+
+  let crc = 0xFFFF;
+  for (let i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+    }
+  }
+  const crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+  return payload + crcHex;
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('rsvp'); 
 
@@ -154,29 +192,26 @@ export default function App() {
     welcomeMsg: 'Sua presença é o nosso maior presente! Venha celebrar o 3º aninho da nossa leoazinha no Reino da Selva Encantada. Hakuna Matata!',
     dateText: 'Sábado, 17 de Outubro de 2026',
     timeText: 'A partir das 13:00',
-    locationText: 'Aquarela Casa de Festa - R. Cel. Rodrigues, 92 – Lj – Centro – São Gonçalo – RJ',
+    locationText: 'Aquarela Casa de Festa - R. Cel. Rodrigues, 92 – Centro, São Gonçalo - RJ',
     pixKeyGlobal: '12814531700',
+    pixReceiverName: 'JORGE MENDES',
+    pixReceiverCity: 'SAO GONCALO',
     googleFormUrl: 'https://forms.gle/NYeD5nE7ruerHPMi6',
     headerBgUrl: WATERMARK_BG,
-    whatsappContact: '5521999999999' // Altere para seu WhatsApp real se desejar
+    whatsappNumber: '5521987600882',
+    whatsappMessage: 'Olá! Gostaria de tirar uma dúvida sobre a festa da Jade.'
   });
 
-  const [gifts, setGifts] = useState(() => {
-    const saved = localStorage.getItem('jade_gifts_reserved');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return DEFAULT_GIFTS; }
-    }
-    return DEFAULT_GIFTS.map(g => ({ ...g, reservedBy: null }));
-  });
-
+  const [gifts] = useState(DEFAULT_GIFTS);
   const [selectedCategory, setSelectedCategory] = useState('Todas');
-  const [selectedPriceRange, setSelectedPriceRange] = useState('todos');
+  const [priceFilter, setPriceFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [selectedGift, setSelectedGift] = useState(null);
+  const [selectedGift, setSelectedGift] = useState<typeof DEFAULT_GIFTS[0] | null>(null);
   const [guestName, setGuestName] = useState('');
   const [giftSuccessMsg, setGiftSuccessMsg] = useState(false);
   const [copiedPix, setCopiedPix] = useState(false);
+
   const [showConfetti, setShowConfetti] = useState(false);
 
   const partyDate = new Date('2026-10-17T13:00:00');
@@ -202,27 +237,39 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('jade_gifts_reserved', JSON.stringify(gifts));
-  }, [gifts]);
-
   const triggerConfetti = () => {
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3500);
   };
 
-  const handleReserveGift = (e) => {
+  const handleReserveGift = (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestName.trim() || !selectedGift) return;
 
-    setGifts(prev => prev.map(g => g.id === selectedGift.id ? { ...g, reservedBy: guestName.trim() } : g));
     setGiftSuccessMsg(true);
     triggerConfetti();
+
+    const msg = `Olá! Meu nome é *${guestName.trim()}* e escolhi presentear a Jade no seu 3º aninho com: *${selectedGift.title}* (R$ ${selectedGift.price.toFixed(2)}). 🦁✨`;
+    const giftWhatsappUrl = `https://wa.me/${partyInfo.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+
+    setTimeout(() => {
+      window.open(giftWhatsappUrl, '_blank');
+    }, 1200);
   };
 
-  const copyPixCode = (code) => {
-    const textToCopy = code || partyInfo.pixKeyGlobal;
-    navigator.clipboard.writeText(textToCopy);
+  const copyPixCode = (code?: string, amount?: number) => {
+    const keyToUse = code || partyInfo.pixKeyGlobal;
+    const valueToUse = amount || 0;
+    
+    // Copia o código PIX copia e cola completo e válido
+    const pixPayload = generatePixPayload(
+      keyToUse, 
+      partyInfo.pixReceiverName, 
+      partyInfo.pixReceiverCity, 
+      valueToUse
+    );
+
+    navigator.clipboard.writeText(pixPayload);
     setCopiedPix(true);
     setTimeout(() => setCopiedPix(false), 3000);
   };
@@ -234,12 +281,18 @@ export default function App() {
     const matchesSearch = gift.title.toLowerCase().includes(searchQuery.toLowerCase());
     
     let matchesPrice = true;
-    if (selectedPriceRange === 'ate50') matchesPrice = gift.price <= 50;
-    else if (selectedPriceRange === '50a150') matchesPrice = gift.price > 50 && gift.price <= 150;
-    else if (selectedPriceRange === 'acimade150') matchesPrice = gift.price > 150;
+    if (priceFilter === 'under50') matchesPrice = gift.price <= 50;
+    else if (priceFilter === '50to150') matchesPrice = gift.price > 50 && gift.price <= 150;
+    else if (priceFilter === 'above150') matchesPrice = gift.price > 150;
 
     return matchesCategory && matchesSearch && matchesPrice;
   });
+
+  const whatsappLink = `https://wa.me/${partyInfo.whatsappNumber}?text=${encodeURIComponent(partyInfo.whatsappMessage)}`;
+
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(partyInfo.locationText)}`;
+  const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(partyInfo.locationText)}&navigate=yes`;
+  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("3º Aniversário da Jade - O Reino da Leoazinha")}&dates=20261017T160000Z/20261017T210000Z&details=${encodeURIComponent("Venha celebrar o 3º aninho da nossa leoazinha no Reino da Selva Encantada!")}&location=${encodeURIComponent(partyInfo.locationText)}`;
 
   return (
     <div className="min-h-screen bg-rose-50/40 text-stone-800 font-sans relative pb-20 selection:bg-pink-200 selection:text-pink-900">
@@ -297,16 +350,26 @@ export default function App() {
             {partyInfo.welcomeMsg}
           </p>
 
-          {/* EVENT DETAILS BOX */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto bg-stone-900/95 backdrop-blur-md p-5 rounded-2xl border-2 border-emerald-500 text-left mb-8 shadow-2xl text-white">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-pink-600 rounded-2xl text-white shrink-0 shadow-md">
-                <Calendar className="w-6 h-6" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto bg-stone-900/95 backdrop-blur-md p-5 rounded-2xl border-2 border-emerald-500 text-left mb-6 shadow-2xl text-white">
+            <div className="flex flex-col justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-pink-600 rounded-2xl text-white shrink-0 shadow-md">
+                  <Calendar className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-pink-300 font-black">Data da Festa</p>
+                  <p className="font-extrabold text-white text-sm sm:text-base leading-snug">{partyInfo.dateText}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-widest text-pink-300 font-black">Data da Festa</p>
-                <p className="font-extrabold text-white text-sm sm:text-base leading-snug">{partyInfo.dateText}</p>
-              </div>
+              <a
+                href={googleCalendarUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-pink-600/80 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition shadow-sm"
+              >
+                <CalendarPlus className="w-3.5 h-3.5" />
+                Salvar na Agenda
+              </a>
             </div>
 
             <div className="flex items-center gap-3">
@@ -319,18 +382,39 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-pink-600 rounded-2xl text-white shrink-0 shadow-md">
-                <MapPin className="w-6 h-6" />
+            <div className="flex flex-col justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-pink-600 rounded-2xl text-white shrink-0 shadow-md">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-[11px] uppercase tracking-widest text-pink-300 font-black">Reino da Leoazinha</p>
+                  <p className="font-extrabold text-white text-xs sm:text-sm leading-snug">{partyInfo.locationText}</p>
+                </div>
               </div>
-              <div className="overflow-hidden">
-                <p className="text-[11px] uppercase tracking-widest text-pink-300 font-black">Reino da Leoazinha</p>
-                <p className="font-extrabold text-white text-xs sm:text-sm leading-snug">{partyInfo.locationText}</p>
+              <div className="flex gap-2">
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-bold transition shadow-sm"
+                >
+                  <Navigation className="w-3 h-3" />
+                  Google Maps
+                </a>
+                <a
+                  href={wazeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-[11px] font-bold transition shadow-sm"
+                >
+                  <Navigation className="w-3 h-3" />
+                  Waze
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Countdown Timer */}
           <div className="max-w-xl mx-auto">
             <p className="text-xs uppercase tracking-widest text-emerald-950 mb-3 font-black flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4 text-pink-600" />
@@ -396,6 +480,7 @@ export default function App() {
                   <Crown className="w-4 h-4 text-pink-600" />
                   <span>Formulário Oficial de Presença (Leoazinha 3 Anos)</span>
                 </div>
+
                 <a
                   href={partyInfo.googleFormUrl}
                   target="_blank"
@@ -406,7 +491,7 @@ export default function App() {
                 </a>
               </div>
 
-              <div className="w-full h-[750px] relative bg-stone-100">
+              <div className="w-full h-[750px] relative bg-stone-100 overflow-y-auto touch-pan-y">
                 <iframe
                   src={partyInfo.googleFormUrl}
                   className="w-full h-full border-0"
@@ -428,13 +513,12 @@ export default function App() {
               </p>
             </div>
 
-            {/* Filter Bar */}
             <div className="bg-white/95 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-pink-200 shadow-md flex flex-col md:flex-row gap-4 justify-between items-center">
-              <div className="relative w-full md:w-80">
+              <div className="relative w-full md:w-72">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                 <input
                   type="text"
-                  placeholder="Buscar presente para a Leoazinha..."
+                  placeholder="Buscar presente..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-4 py-2.5 bg-pink-50/50 border border-pink-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/30 font-medium"
@@ -446,7 +530,7 @@ export default function App() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${
                       selectedCategory === cat
                         ? 'bg-emerald-700 text-white shadow-sm'
                         : 'bg-stone-100 text-stone-600 hover:bg-pink-100 hover:text-pink-900'
@@ -457,105 +541,83 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Functional Price Filter */}
-              <div className="w-full md:w-auto flex items-center gap-2">
+              <div className="w-full md:w-auto flex items-center gap-2 bg-pink-50/80 border border-pink-200 px-3 py-1.5 rounded-xl">
                 <Filter className="w-4 h-4 text-pink-600 shrink-0" />
                 <select
-                  value={selectedPriceRange}
-                  onChange={(e) => setSelectedPriceRange(e.target.value)}
-                  className="w-full md:w-auto px-4 py-2.5 bg-pink-50 border border-pink-300 rounded-xl text-xs font-black text-pink-950 focus:outline-none focus:ring-2 focus:ring-pink-500/30 shadow-sm"
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  className="bg-transparent text-xs font-bold text-pink-950 focus:outline-none cursor-pointer"
                 >
-                  <option value="todos">Todos os Valores</option>
-                  <option value="ate50">Até R$ 50</option>
-                  <option value="50a150">R$ 51 a R$ 150</option>
-                  <option value="acimade150">Acima de R$ 150</option>
+                  <option value="all">Todos os Valores</option>
+                  <option value="under50">Até R$ 50</option>
+                  <option value="50to150">R$ 51 a R$ 150</option>
+                  <option value="above150">Acima de R$ 150</option>
                 </select>
               </div>
             </div>
 
-            {/* Gifts Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredGifts.map((gift) => (
-                <div
-                  key={gift.id}
-                  className={`bg-white/95 backdrop-blur-sm rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col justify-between ${
-                    gift.reservedBy ? 'border-amber-300 bg-amber-50/20' : 'border-pink-200 hover:border-pink-400 hover:shadow-2xl hover:-translate-y-1'
-                  }`}
-                >
-                  <div>
-                    <div className="relative h-48 overflow-hidden bg-pink-100/50">
-                      <img
-                        src={gift.image}
-                        alt={gift.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                      />
-                      <span className="absolute top-3 left-3 bg-emerald-950/90 text-pink-200 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-pink-300/30">
-                        {gift.category}
-                      </span>
-                      {gift.reservedBy && (
-                        <span className="absolute top-3 right-3 bg-amber-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                          Reservado
+              {filteredGifts.length > 0 ? (
+                filteredGifts.map((gift) => (
+                  <div
+                    key={gift.id}
+                    className="bg-white/95 backdrop-blur-sm rounded-3xl overflow-hidden border border-pink-200 hover:border-pink-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="relative h-48 overflow-hidden bg-pink-100/50">
+                        <img
+                          src={gift.image}
+                          alt={gift.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=400';
+                          }}
+                        />
+                        <span className="absolute top-3 left-3 bg-emerald-950/90 text-pink-200 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-pink-300/30">
+                          {gift.category}
                         </span>
-                      )}
-                    </div>
+                      </div>
 
-                    <div className="p-5">
-                      <h3 className="font-extrabold text-stone-900 text-base mb-2 line-clamp-2">
-                        {gift.title}
-                      </h3>
-                      <p className="text-2xl font-black text-rose-600 mb-2 font-mono">
-                        R$ {gift.price.toFixed(2)}
-                      </p>
-                      {gift.reservedBy ? (
-                        <p className="text-xs font-bold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-xl border border-amber-200">
-                          ❤️ Reservado por: <strong>{gift.reservedBy}</strong>
+                      <div className="p-5">
+                        <h3 className="font-extrabold text-stone-900 text-base mb-2 line-clamp-2">
+                          {gift.title}
+                        </h3>
+                        <p className="text-2xl font-black text-rose-600 mb-4 font-mono">
+                          R$ {gift.price.toFixed(2)}
                         </p>
-                      ) : (
-                        <p className="text-xs text-stone-500 font-medium">Disponível para escolha</p>
-                      )}
+                      </div>
+                    </div>
+
+                    <div className="p-5 pt-0">
+                      <button
+                        onClick={() => {
+                          setSelectedGift(gift);
+                          setGiftSuccessMsg(false);
+                          setGuestName('');
+                        }}
+                        className="w-full py-3.5 px-4 bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 hover:from-pink-700 hover:to-emerald-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md transition"
+                      >
+                        <Heart className="w-4 h-4 fill-white" />
+                        Presentear / PIX
+                      </button>
                     </div>
                   </div>
-
-                  <div className="p-5 pt-0">
-                    <button
-                      onClick={() => {
-                        setSelectedGift(gift);
-                        setGiftSuccessMsg(false);
-                        setGuestName('');
-                      }}
-                      className={`w-full py-3.5 px-4 rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md transition ${
-                        gift.reservedBy 
-                          ? 'bg-stone-200 text-stone-600 hover:bg-stone-300' 
-                          : 'bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 hover:from-pink-700 hover:to-emerald-800 text-white'
-                      }`}
-                    >
-                      <Heart className={`w-4 h-4 ${gift.reservedBy ? '' : 'fill-white'}`} />
-                      {gift.reservedBy ? 'Ver Detalhes / Alterar' : 'Presentear / PIX'}
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12 bg-white/80 rounded-3xl border border-pink-200">
+                  <p className="text-stone-600 font-bold">Nenhum presente encontrado para estes filtros.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
 
       </main>
 
-      {/* WhatsApp Quick Floating Button */}
-      <a
-        href={`https://wa.me/${partyInfo.whatsappContact}?text=Olá! Vim pelo site do aniversário da Jade e gostaria de tirar uma dúvida.`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-40 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110"
-        title="Fale conosco no WhatsApp"
-      >
-        <MessageCircle className="w-6 h-6 fill-white" />
-      </a>
-
-      {/* Gift Modal */}
+      {/* Gift Modal COM QR CODE PIX OFICIAL EMVCO/BR CODE */}
       {selectedGift && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/70 backdrop-blur-md p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl overflow-hidden border border-pink-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl overflow-hidden border border-pink-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedGift(null)}
               className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full bg-stone-100"
@@ -585,38 +647,42 @@ export default function App() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Pix Option & QR Code */}
                   <div className="bg-pink-50/80 border-2 border-pink-300 rounded-2xl p-4 text-center">
                     <h4 className="font-extrabold text-pink-950 text-sm flex items-center justify-center gap-2 mb-3">
                       <QrCode className="w-4 h-4 text-pink-700" />
-                      Pagamento / Contribuição via PIX
+                      Pagamento via PIX (QR Code & Chave Copia e Cola)
                     </h4>
 
-                    {/* QR Code visual para leitura no celular/computador */}
-                    <div className="bg-white p-3 rounded-2xl border border-pink-200 inline-block shadow-sm mb-3">
+                    {/* QR Code gerado no padrão BR Code Oficial */}
+                    <div className="bg-white p-3 rounded-2xl border border-pink-200 inline-block mb-3 shadow-sm">
                       <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${selectedGift.pixKey || partyInfo.pixKeyGlobal}`} 
-                        alt="QR Code PIX"
-                        className="w-36 h-36 mx-auto"
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                          generatePixPayload(
+                            selectedGift.pixKey,
+                            partyInfo.pixReceiverName,
+                            partyInfo.pixReceiverCity,
+                            selectedGift.price
+                          )
+                        )}`} 
+                        alt="QR Code PIX Válido"
+                        className="w-40 h-40 mx-auto rounded-lg"
                       />
                     </div>
-                    <p className="text-[11px] text-stone-500 font-medium mb-3">Abra o app do seu banco e escaneie o código acima</p>
 
                     <div className="bg-white p-3 rounded-xl border border-pink-300 flex items-center justify-between gap-2 shadow-sm">
-                      <span className="text-xs sm:text-sm font-mono font-bold text-stone-800 truncate">
-                        {selectedGift.pixKey || partyInfo.pixKeyGlobal}
+                      <span className="text-sm font-mono font-bold text-stone-800">
+                        {selectedGift.pixKey}
                       </span>
                       <button
-                        onClick={() => copyPixCode(selectedGift.pixKey || partyInfo.pixKeyGlobal)}
+                        onClick={() => copyPixCode(selectedGift.pixKey, selectedGift.price)}
                         className="p-2.5 bg-pink-600 text-white hover:bg-pink-700 rounded-xl text-xs font-black flex items-center gap-1 shrink-0 transition shadow-sm"
                       >
                         <Copy className="w-3.5 h-3.5" />
-                        {copiedPix ? 'Copiado!' : 'Copiar Chave'}
+                        {copiedPix ? 'Copiado!' : 'Copiar Chave / PIX'}
                       </button>
                     </div>
                   </div>
 
-                  {/* Reservation Form */}
                   <form onSubmit={handleReserveGift} className="space-y-4">
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">
@@ -625,7 +691,7 @@ export default function App() {
                       <input
                         type="text"
                         required
-                        placeholder="Insira seu nome"
+                        placeholder="Insira seu nome para o cartão"
                         value={guestName}
                         onChange={(e) => setGuestName(e.target.value)}
                         className="w-full p-3 bg-pink-50/40 border border-pink-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500/30 focus:outline-none"
@@ -634,10 +700,10 @@ export default function App() {
 
                     <button
                       type="submit"
-                      className="w-full py-3.5 bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 hover:from-pink-700 hover:to-emerald-800 text-white font-black rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
+                      className="w-full py-3.5 bg-gradient-to-r from-emerald-600 via-emerald-700 to-rose-600 hover:from-emerald-700 hover:to-rose-700 text-white font-black rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg transition"
                     >
-                      <CheckCircle className="w-4 h-4" />
-                      Confirmar Escolha do Presente
+                      <Send className="w-4 h-4" />
+                      Confirmar Escolha e Avisar pelo WhatsApp
                     </button>
                   </form>
                 </div>
@@ -648,8 +714,11 @@ export default function App() {
                   <Check className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-black text-stone-900 mb-2">Hakuna Matata! Muito Obrigada!</h3>
-                <p className="text-sm text-stone-600 mb-6">
-                  Registramos seu carinho para o presente <strong>"{selectedGift.title}"</strong>.
+                <p className="text-sm text-stone-600 mb-4">
+                  Registramos seu carinho para o presente <strong>"{selectedGift.title}"</strong>!
+                </p>
+                <p className="text-xs text-emerald-800 font-bold bg-emerald-50 p-3 rounded-xl mb-6 border border-emerald-200">
+                  📲 Redirecionando para abrir o WhatsApp com a mensagem do presente...
                 </p>
                 <button
                   onClick={() => setSelectedGift(null)}
@@ -662,6 +731,20 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* BOTÃO FLUTUANTE DO WHATSAPP */}
+      <a
+        href={whatsappLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contato via WhatsApp"
+        className="fixed bottom-6 right-6 z-40 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 transition-all duration-300 hover:scale-110 active:scale-95 group border-2 border-white/50"
+      >
+        <MessageCircle className="w-6 h-6 fill-white stroke-emerald-500" />
+        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-500 ease-in-out text-xs font-extrabold pr-0 group-hover:pr-2">
+          Falar Conosco
+        </span>
+      </a>
 
     </div>
   );
