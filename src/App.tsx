@@ -18,7 +18,8 @@ import {
   Navigation,
   CalendarPlus,
   Filter,
-  Send
+  Send,
+  Key
 } from 'lucide-react';
 
 // Background watermarked illustration
@@ -211,7 +212,10 @@ export default function App() {
   const [selectedGift, setSelectedGift] = useState<typeof DEFAULT_GIFTS[0] | null>(null);
   const [guestName, setGuestName] = useState('');
   const [giftSuccessMsg, setGiftSuccessMsg] = useState(false);
-  const [copiedPix, setCopiedPix] = useState(false);
+  
+  // Estados independentes para os dois feedbacks de cópia
+  const [copiedPayload, setCopiedPayload] = useState(false);
+  const [copiedRawKey, setCopiedRawKey] = useState(false);
 
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -258,20 +262,25 @@ export default function App() {
     }, 1200);
   };
 
-  const copyPixCode = (code?: string, amount?: number) => {
-    const keyToUse = code || partyInfo.pixKeyGlobal;
-    const valueToUse = amount || 0;
-    
+  // Método 1: Copiar código PIX Copia e Cola completo (EMVCo)
+  const copyPixPayload = (code: string, amount: number) => {
     const pixPayload = generatePixPayload(
-      keyToUse, 
+      code, 
       partyInfo.pixReceiverName, 
       partyInfo.pixReceiverCity, 
-      valueToUse
+      amount
     );
 
     navigator.clipboard.writeText(pixPayload);
-    setCopiedPix(true);
-    setTimeout(() => setCopiedPix(false), 3000);
+    setCopiedPayload(true);
+    setTimeout(() => setCopiedPayload(false), 3000);
+  };
+
+  // Método 2: Copiar apenas a chave PIX num do telefone/CPF
+  const copyRawPixKey = (key: string) => {
+    navigator.clipboard.writeText(key);
+    setCopiedRawKey(true);
+    setTimeout(() => setCopiedRawKey(false), 3000);
   };
 
   const categories = ['Todas', ...Array.from(new Set(gifts.map(g => g.category)))];
@@ -594,6 +603,8 @@ export default function App() {
                           setSelectedGift(gift);
                           setGiftSuccessMsg(false);
                           setGuestName('');
+                          setCopiedPayload(false);
+                          setCopiedRawKey(false);
                         }}
                         className="w-full py-3.5 px-4 bg-gradient-to-r from-pink-600 via-rose-600 to-emerald-700 hover:from-pink-700 hover:to-emerald-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md transition"
                       >
@@ -646,14 +657,15 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div className="bg-pink-50/80 border-2 border-pink-300 rounded-2xl p-4 text-center">
                     <h4 className="font-extrabold text-pink-950 text-sm flex items-center justify-center gap-2 mb-3">
                       <QrCode className="w-4 h-4 text-pink-700" />
-                      Pagamento via PIX (QR Code & Chave Copia e Cola)
+                      Pagamento via PIX (QR Code & Códigos)
                     </h4>
 
-                    <div className="bg-white p-3 rounded-2xl border border-pink-200 inline-block mb-3 shadow-sm">
+                    {/* QR CODE DINÂMICO */}
+                    <div className="bg-white p-3 rounded-2xl border border-pink-200 inline-block mb-4 shadow-sm">
                       <img 
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
                           generatePixPayload(
@@ -664,20 +676,28 @@ export default function App() {
                           )
                         )}`} 
                         alt="QR Code PIX Válido"
-                        className="w-40 h-40 mx-auto rounded-lg"
+                        className="w-36 h-36 mx-auto rounded-lg"
                       />
                     </div>
 
-                    <div className="bg-white p-3 rounded-xl border border-pink-300 flex items-center justify-between gap-2 shadow-sm">
-                      <span className="text-sm font-mono font-bold text-stone-800">
-                        {selectedGift.pixKey}
-                      </span>
+                    {/* OPÇÃO 2 IMPLEMENTADA: DOIS BOTÕES CLAROS E SEPARADOS */}
+                    <div className="space-y-2.5">
+                      {/* BOTÃO A: COPIAR PIX COPIA E COLA COMPLETO */}
                       <button
-                        onClick={() => copyPixCode(selectedGift.pixKey, selectedGift.price)}
-                        className="p-2.5 bg-pink-600 text-white hover:bg-pink-700 rounded-xl text-xs font-black flex items-center gap-1 shrink-0 transition shadow-sm"
+                        onClick={() => copyPixPayload(selectedGift.pixKey, selectedGift.price)}
+                        className="w-full py-3 px-4 bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 transition shadow-sm"
                       >
-                        <Copy className="w-3.5 h-3.5" />
-                        {copiedPix ? 'Copiado!' : 'Copiar Chave / PIX'}
+                        <Copy className="w-4 h-4" />
+                        {copiedPayload ? '✅ PIX Copia e Cola Copiado!' : '📋 Copiar PIX Copia e Cola (Valor Exato)'}
+                      </button>
+
+                      {/* BOTÃO B: COPIAR APENAS A CHAVE SECA (CPF/TELEFONE) */}
+                      <button
+                        onClick={() => copyRawPixKey(selectedGift.pixKey)}
+                        className="w-full py-2.5 px-4 bg-white hover:bg-pink-100 text-pink-950 border border-pink-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"
+                      >
+                        <Key className="w-3.5 h-3.5 text-pink-700" />
+                        {copiedRawKey ? '✅ Chave Copiada!' : `🔑 Copiar Apenas a Chave (${selectedGift.pixKey})`}
                       </button>
                     </div>
                   </div>
